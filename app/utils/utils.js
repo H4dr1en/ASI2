@@ -16,6 +16,11 @@ this.generateUUID = function () {
 	return uuid;
 };
 
+this.checkUUID = function(uuid) {
+    let regex = RegExp("([0-9a-zA-Z]){8}-([0-9a-zA-Z]){4}-4([0-9a-zA-Z]){3}-([0-9a-zA-Z]){4}-([0-9a-zA-Z]){12}");
+    return regex.test(uuid);
+}
+
 this.fileExists = function (path, callback) {
 	fs.stat(path, function (err, stat) {
 		if (err) {

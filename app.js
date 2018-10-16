@@ -1,10 +1,10 @@
-console.log("App started");
-
 var CONFIG = require("./config.json");
+const path = require("path");
+CONFIG.contentDirectory = path.join(process.env.PWD, CONFIG.contentDirectory);
+CONFIG.presentationDirectory = path.join(process.env.PWD, CONFIG.presentationDirectory);
 process.env.CONFIG = JSON.stringify(CONFIG);
 // var CONFIG = JSON.parse(process.env.CONFIG);
 
-var path = require("path");
 var express = require("express");
 var app = express();
 var http = require("http");

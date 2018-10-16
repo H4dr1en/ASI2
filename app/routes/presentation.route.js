@@ -75,7 +75,6 @@ router.route("/SavePres")
 
             // if(utils.fileExists(path.join(CONFIG.presentationDirectory)))
             let file = utils.getPresFilePath(pres.id);
-
             writeFile(file, JSON.stringify(pres)).then(res => {
                 response.status(200);
                 response.end();
@@ -84,15 +83,6 @@ router.route("/SavePres")
                 response.end(err.message);
             })
         });
-
-        /*
-        if (!request.body['pres']) {
-            response.send({ error: "no property pres" });
-            return;
-        }*/
-
-        //let pres = JSON.parse(request.body);
-
     })
     .put(function (request, response) {
 
