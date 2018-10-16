@@ -1,0 +1,5 @@
+{
+    "port": 1337,
+    "contentDirectory": "/home/cpe/ASI2/tp_starter/content",
+    "presentationDirectory": "/home/cpe/ASI2/tp_starter/presentation"
+}
