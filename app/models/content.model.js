@@ -29,17 +29,18 @@ module.exports = class ContentModel {
         if (!content instanceof ContentModel)
             console.log("Warning: content is not of type ContentMode");
 
-        let promises = [];
+        let p1 = p2 = Promise.resolve();
 
         if (content.type !== "img") {   // TODO: understand
-            promises.push(writeFile(utils.getDataFilePath(content.fileName), content.getData())
+            p1 = push(writeFile(utils.getDataFilePath(content.fileName), content.getData())
                 .catch(err => console.log("Error writing file: ", err)));
         }
 
-        promises.push(writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
+        p2 = push(writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
             .catch(err => console.log("Error writing file: ", err)));
 
-        Promise.all(promises).then(() => callback(), callback); // Error handling is done in each promise
+        // Can't do then(callback) because Promise.all returns an array of the resolved values that is empty here
+        Promise.all([p1,p2]).then(() => callback(), callback); // Error handling is done in each promise
     }
 
     // callback(err, data)
@@ -58,29 +59,29 @@ module.exports = class ContentModel {
         if (!content instanceof ContentModel)
             console.log("Warning: content is not of type ContentMode");
 
-        let promises = [];
+        let p1 = p2 = Promise.resolve();
 
-        promises.push(writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content)).catch(err =>
-            console.log("Error writing file: ", err)));
+        p1 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
+            .catch(err => console.log("Error writing file: ", err));
 
         if (content.type !== "img" && content.getData() && content.getData().length) {
-            promises.push(writeFile(utils.getDataFilePath(content.fileName), content.getData())
-                .catch(err => console.log("Error writing file: ", err)));
+            p2 = writeFile(utils.getDataFilePath(content.fileName), content.getData())
+                .catch(err => console.log("Error writing file: ", err));
         }
 
-        Promise.all(promises).then(() => callback(), callback); // Error handling is done in each promise
+        Promise.all([p1,p2]).then(() => callback(), callback); // Error handling is done in each promise
     }
 
     static delete(id, callback) {
 
-        let promises = [];
+        let p1 = p2 = Promise.resolve();
 
-        promises.push(readFile(utils.getMetaFilePath(id))
+        p1 = readFile(utils.getMetaFilePath(id))
             .then(data => removeFile(utils.getDataFilePath(JSON.parse(data).fileName))
-            .catch(err => console.log("Error reading/writing file: ", err))));
+            .catch(err => console.log("Error reading/writing file: ", err)));
 
-        promises.push(removeFile(utils.getMetaFilePath(id)).catch(err => console.log("Error writing file: ", err)));
+        p2 = removeFile(utils.getMetaFilePath(id)).catch(err => console.log("Error writing file: ", err));
 
-        Promise.all(promises).then(() => callback(), callback); // Error handling is done in each promise
+        Promise.all([p1,p2]).then(() => callback(), callback); // Error handling is done in each promise
     }
 }
