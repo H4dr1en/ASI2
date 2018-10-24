@@ -40,19 +40,18 @@ this.list = function (req, res) {
     .catch(error => res.status(500).end(error.message));
 }
 
-this.getContent = function (req, res) {
-    console.dir(req.param("json"))
+this.read = function (req, res) {
     ContentModel.read(req.id)
         .then(content => {
             if(req.param('json')) {
-                return res.end(JSON.stringify(content));
-            }
-            else if(content.type == "img") {
+                return res.end(JSON.stringify(content));            
+            } 
+            
+            if(content.type == "img") {
                 return res.sendFile(path.join(CONFIG.contentDirectory, content.fileName));
             }
-            else {
-                return res.redirect(content.src);
-            }            
+
+            return res.redirect(content.src);                     
         })
         .catch(err => res.status(500).end(err.message))
 }
@@ -89,6 +88,6 @@ this.create = function (req, res) {
     }
     
     p.then(() => ContentModel.create(content))
-        .then(() => res.end())
+        .then(() => res.end(content.id))
         .catch(e => res.status(500).end(e.message));
 }

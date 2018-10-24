@@ -20,6 +20,7 @@
   "homepage": "https://github.com/H4dr1en/ASI2#readme",
   "dependencies": {
     "express": "^4.16.4",
-    "multer": "^1.4.1"
+    "multer": "^1.4.1",
+    "socket.io": "^2.1.1"
   }
 }

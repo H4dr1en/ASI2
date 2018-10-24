@@ -16,11 +16,15 @@ var defaultRoute = require("./app/routes/default.route.js");
 var presRoute = require("./app/routes/presentation.route.js");
 var contentRoute = require("./app/routes/content.route.js");
 
+var IOController = require("./app/controllers/io.controller.js");
+
 app.use([defaultRoute, presRoute, contentRoute]);
 
 // init server
 var server = http.createServer(app);
 server.listen(CONFIG.port);
+IOController.listen(server);
 
 app.use("/admin", express.static(path.join(__dirname, "public/admin")));
 app.use("/watch", express.static(path.join(__dirname, "public/watch")));
+
