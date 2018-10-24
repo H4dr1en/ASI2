@@ -35,13 +35,11 @@ router.route("/loadPres")
                     result[obj.id] = obj;
                 });
                 response.send(result);
-            }).catch(err => console.log(err));
+            }).catch(error => response.status(500).end(error.message));
 
-        }, err => {
-            console.error("Could not list the directory.", err);
-            process.exit(1);
-        });
+        }, error => response.status(500).end(error.message));
     })
+
     .post(function (request, response) {
 
     })
@@ -60,10 +58,9 @@ router.route("/loadPres")
 router.route("/SavePres")
     .get(function (request, response) {
         response.writeHead(200, { 'Content-Type': 'text/plain' });
-        response.send("Must be post");
+        response.send("Post request expected");
     })
     .post(function (request, response) {
-
         var body = "";
 
         request.on('data', chunk => {
@@ -78,10 +75,7 @@ router.route("/SavePres")
             writeFile(file, JSON.stringify(pres)).then(res => {
                 response.status(200);
                 response.end();
-            }).catch(err => {
-                response.writeHead(500, { 'Content-Type': 'text/plain' });
-                response.end(err.message);
-            })
+            }).catch(error => response.status(500).end(error.message));
         });
     })
     .put(function (request, response) {

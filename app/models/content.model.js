@@ -11,77 +11,104 @@ const removeFile = util.promisify(fs.unlink);
 
 module.exports = class ContentModel {
 
-    constructor({ type = null, id = null, title = null, src = null, fileName = null } = {}) {
+    constructor({ type = null, id = utils.generateUUID(), title = null, src = null, fileName = null } = {}) {
         this.type = type
         this.id = id;
         this.title = title;
         this.src = src;
         this.fileName = fileName;
-        this._data = null;
-    }
 
-    getData() { return this._data };
-    setData(value) { this._data = value };
+        // private _data
+        var _data = null;
+        this.getData = () => _data;
+        this.setData = (value) => { _data = value };
+    }
 
     // callback(err)
     static create(content, callback) {
 
-        if (!content instanceof ContentModel)
-            console.log("Warning: content is not of type ContentMode");
-
-        let p1 = p2 = Promise.resolve();
-
-        if (content.type !== "img") {   // TODO: understand
-            p1 = push(writeFile(utils.getDataFilePath(content.fileName), content.getData())
-                .catch(err => console.log("Error writing file: ", err)));
+        if (!content instanceof ContentModel) {
+            return callback(new Error("Content is not of type ContentMode"));
         }
 
-        p2 = push(writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
-            .catch(err => console.log("Error writing file: ", err)));
+        if (!utils.isUUID(content.id)) {
+            return callback(new Error("Incorrect id"));
+        }
 
-        // Can't do then(callback) because Promise.all returns an array of the resolved values that is empty here
-        Promise.all([p1,p2]).then(() => callback(), callback); // Error handling is done in each promise
+        let p1 = Promise.resolve();
+
+        if (content.getData()) {
+            p1 = writeFile(utils.getDataFilePath(content.fileName), content.getData());
+        }
+
+        let p2 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content));
+
+        Promise.all([p1, p2])
+            .then(() => callback()) // Can't do then(callback) because Promise.all returns an array of resolved values, empty here
+            .catch(err => {
+                console.log("Error writing file: ", err);
+                callback(err);
+            });
     }
 
     // callback(err, data)
     static read(id, callback) {
 
+        if (!utils.isUUID(id)) {
+            return callback(new Error("Incorrect id"));
+        }
+
         readFile(utils.getMetaFilePath(id), 'utf8')
             .then(data => callback(undefined, new ContentModel(JSON.parse(data))))
             .catch(err => {
-                console.log("Error writing file: ", err);
+                console.error("Error writing file: ", err);
                 callback(err);
             })
     }
 
     // callback(err)
     static update(content, callback) {
-        if (!content instanceof ContentModel)
-            console.log("Warning: content is not of type ContentMode");
 
-        let p1 = p2 = Promise.resolve();
-
-        p1 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
-            .catch(err => console.log("Error writing file: ", err));
-
-        if (content.type !== "img" && content.getData() && content.getData().length) {
-            p2 = writeFile(utils.getDataFilePath(content.fileName), content.getData())
-                .catch(err => console.log("Error writing file: ", err));
+        if (!content instanceof ContentModel) {
+            return callback(new Error("Content is not of type ContentMode"));
         }
 
-        Promise.all([p1,p2]).then(() => callback(), callback); // Error handling is done in each promise
+        if (!utils.isUUID(content.id)) {
+            return callback(new Error("Incorrect id"));
+        }
+
+        let p2 = Promise.resolve();
+
+        let p1 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
+
+        let data = content.getData();
+
+        if (content.getData()) {
+            p2 = writeFile(utils.getDataFilePath(content.fileName), data)
+        }
+
+        Promise.all([p1, p2])
+            .then(() => callback()) // Can't do then(callback) because Promise.all returns an array of resolved values, empty here
+            .catch(err => {
+                console.error("Error writing file: ", err);
+                callback(err);
+            });
     }
 
     static delete(id, callback) {
 
-        let p1 = p2 = Promise.resolve();
+        if (!utils.isUUID(id)) {
+            return callback(new Error("Incorrect id"));
+        }
 
-        p1 = readFile(utils.getMetaFilePath(id))
-            .then(data => removeFile(utils.getDataFilePath(JSON.parse(data).fileName))
-            .catch(err => console.log("Error reading/writing file: ", err)));
+        let p1 = readFile(utils.getMetaFilePath(id)).then(data => removeFile(utils.getDataFilePath(JSON.parse(data).fileName)));
+        let p2 = removeFile(utils.getMetaFilePath(id));
 
-        p2 = removeFile(utils.getMetaFilePath(id)).catch(err => console.log("Error writing file: ", err));
-
-        Promise.all([p1,p2]).then(() => callback(), callback); // Error handling is done in each promise
+        Promise.all([p1, p2])
+            .then(() => callback()) // Can't do then(callback) because Promise.all returns an array of resolved values, empty here
+            .catch(err => {
+                console.error("Error reading/writing file: ", err);
+                callback(err);
+            });
     }
 }
