@@ -15,7 +15,7 @@ this.listen = function (server) {
         socket.on('data_comm', data => map.set(data.id, socket))
         socket.on('slideEvent', data => {
 
-            if (utils.isUUID(data.slideID)) {
+            if (!utils.isUUID(data.SLID_ID)) {
                 return socket.emit("slideEvent_back", { error: "Incorrect UUID" });
             }
 
@@ -23,8 +23,10 @@ this.listen = function (server) {
                 return socket.emit("slideEvent_back", { error: "Incorrect command" });
             }
 
-            map.forEach(socket => socket.emit("changeSlide", { slideID: data.slideID}));
+            map.forEach(socket => socket.emit("currentSlidEvent", { "slideID": data.SLID_ID}));
         })
+
+        socket.on('disconnect', () => map.delete(socket.id));
     });
 }
 
