@@ -15,11 +15,12 @@ var http = require("http");
 var defaultRoute = require("./app/routes/default.route.js");
 var presRoute = require("./app/routes/presentation.route.js");
 var contentRoute = require("./app/routes/content.route.js");
+var uuidRoute = require("./app/routes/uuid.route.js");
 //var loginRoute = require("./app/routes/login.route.js");
 
 var IOController = require("./app/controllers/io.controller.js");
 
-app.use([defaultRoute, presRoute, contentRoute]);
+app.use([defaultRoute, presRoute, contentRoute, uuidRoute]);
 
 // init server
 var server = http.createServer(app);
