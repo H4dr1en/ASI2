@@ -14,7 +14,7 @@ var ContentModel = require("./../models/content.model");
 
 module.export = this;
 
-this.getContents = function (req, res) {
+this.list = function (req, res) {
 
     res.setHeader('Content-Type', 'application/json');
 
@@ -27,19 +27,33 @@ this.getContents = function (req, res) {
             promises.push(readFile(path.join(CONFIG.contentDirectory, file), 'utf8'));
         })
 
-        let result = [];
+        let result = {};
 
-        Promise.all(promises).then(values => {
-            values.forEach(el => result.push(JSON.parse(el)));
+        return Promise.all(promises).then(values => {
+            values.forEach(el => {
+                let obj = JSON.parse(el);
+                result[obj.id] = obj;
+            });
             res.end(JSON.stringify(result));
-        }).catch(error => res.status(500).end(error.message));
-
-    }, error => res.status(500).end(error.message));
+        })
+    })
+    .catch(error => res.status(500).end(error.message));
 }
 
 this.getContent = function (req, res) {
+    console.dir(req.param("json"))
     ContentModel.read(req.id)
-        .then(content => res.end(JSON.stringify(content)))
+        .then(content => {
+            if(req.param('json')) {
+                return res.end(JSON.stringify(content));
+            }
+            else if(content.type == "img") {
+                return res.sendFile(path.join(CONFIG.contentDirectory, content.fileName));
+            }
+            else {
+                return res.redirect(content.src);
+            }            
+        })
         .catch(err => res.status(500).end(err.message))
 }
 
@@ -47,20 +61,31 @@ this.create = function (req, res) {
     console.log(req.file)
     console.log(req.body)
 
-    let content = new ContentModel({ type: req.body.type, src: req.body.src, title: req.body.title });
+    if(['img', 'img_url', 'video', 'web'].indexOf(req.body.type) == -1)
+        return res.status(500).end(`Type: ${req.body.type} is not supported`)
 
-    let destPath = path.join(CONFIG.contentDirectory, content.id + path.extname(req.file.originalname));
+    let content = new ContentModel({ type: req.body.type, src: req.body.src, title: req.body.title });
 
     let p = Promise.resolve();
 
     if (req.body.type == "img") {
-        let fileName = content.id + path.extname(req.file.originalname);
+
+        if(!req.file) {
+            return res.status(500).end("No file provided for type image")
+        }
+
         content.src = path.join("/content/", content.id);
-        content.fileName = fileName;
+        content.fileName = content.id + path.extname(req.file.originalname);
+        
+        let destPath = path.join(CONFIG.contentDirectory, content.id + path.extname(req.file.originalname));
         p = rename(req.file.path, destPath);
-    }
-    else {
-        content.src = path.join("/content", req.body.src);
+
+    } else {
+
+        if(!req.body.src)
+            return res.status(500).end(`No src provided for type: ${req.body.type}`)
+        else
+            content.src = path.join("/content", req.body.src);
     }
     
     p.then(() => ContentModel.create(content))

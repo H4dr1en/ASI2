@@ -9,7 +9,7 @@ var contentController = require('../controllers/content.controllers');
 var multerMiddleware = multer({ "dest": CONFIG.tmpDirectory });
 
 router.route("/contents")
-        .get(contentController.getContents)
+        .get(contentController.list)
         .post(multerMiddleware.single("file"), contentController.create);
 
 router.route("/contents/:id")

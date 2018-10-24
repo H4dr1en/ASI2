@@ -62,7 +62,7 @@ module.exports = class ContentModel {
             readFile(utils.getMetaFilePath(id), 'utf8')
                 .then(data => resolve(new ContentModel(JSON.parse(data))))
                 .catch(err => {
-                    console.error("Error writing file: ", err);
+                    console.error("Error reading file: ", err);
                     reject(err);
                 })
         });
