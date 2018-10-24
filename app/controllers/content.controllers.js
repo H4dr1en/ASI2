@@ -38,12 +38,9 @@ this.getContents = function (req, res) {
 }
 
 this.getContent = function (req, res) {
-    ContentModel.read(req.id, function(err, content) {
-        if(err) {
-            return res.status(500).end(err.message);
-        }
-        return res.end(JSON.stringify(content))
-    });
+    ContentModel.read(req.id)
+        .then(content => res.end(JSON.stringify(content)))
+        .catch(err => res.status(500).end(err.message))
 }
 
 this.create = function (req, res) {
@@ -66,5 +63,7 @@ this.create = function (req, res) {
         content.src = path.join("/content", req.body.src);
     }
     
-    p.then(() => ContentModel.create(content, e => e ? res.status(500).end(e.message) : res.end()));
+    p.then(() => ContentModel.create(content))
+        .then(() => res.end())
+        .catch(e => res.status(500).end(e.message));
 }

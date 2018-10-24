@@ -24,91 +24,96 @@ module.exports = class ContentModel {
         this.setData = (value) => { _data = value };
     }
 
-    // callback(err)
-    static create(content, callback) {
+    static create(content) {
+        return new Promise((resolve, reject) => {
 
-        if (!content instanceof ContentModel) {
-            return callback(new Error("Content is not of type ContentMode"));
-        }
+            if (!content instanceof ContentModel) {
+                reject(new Error("Content is not of type ContentMode"));
+            }
 
-        if (!utils.isUUID(content.id)) {
-            return callback(new Error("Incorrect id"));
-        }
+            if (!utils.isUUID(content.id)) {
+                reject(new Error("Incorrect id"));
+            }
 
-        let p1 = Promise.resolve();
+            let p1 = Promise.resolve();
 
-        if (content.getData()) {
-            p1 = writeFile(utils.getDataFilePath(content.fileName), content.getData());
-        }
+            if (content.getData()) {
+                p1 = writeFile(utils.getDataFilePath(content.fileName), content.getData());
+            }
 
-        let p2 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content));
+            let p2 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content));
 
-        Promise.all([p1, p2])
-            .then(() => callback()) // Can't do then(callback) because Promise.all returns an array of resolved values, empty here
-            .catch(err => {
-                console.log("Error writing file: ", err);
-                callback(err);
-            });
+            Promise.all([p1, p2])
+                .then(() => resolve(content))
+                .catch(err => {
+                    console.log("Error writing file: ", err);
+                    reject(err);
+                });
+        })
     }
 
-    // callback(err, data)
-    static read(id, callback) {
+    static read(id) {
+        return new Promise((resolve, reject) => {
 
-        if (!utils.isUUID(id)) {
-            return callback(new Error("Incorrect id"));
-        }
+            if (!utils.isUUID(id)) {
+                reject(new Error("Incorrect id"));
+            }
 
-        readFile(utils.getMetaFilePath(id), 'utf8')
-            .then(data => callback(undefined, new ContentModel(JSON.parse(data))))
-            .catch(err => {
-                console.error("Error writing file: ", err);
-                callback(err);
-            })
+            readFile(utils.getMetaFilePath(id), 'utf8')
+                .then(data => resolve(new ContentModel(JSON.parse(data))))
+                .catch(err => {
+                    console.error("Error writing file: ", err);
+                    reject(err);
+                })
+        });
     }
 
-    // callback(err)
-    static update(content, callback) {
+    static update(content) {
+        return new Promise((resolve, reject) => {
 
-        if (!content instanceof ContentModel) {
-            return callback(new Error("Content is not of type ContentMode"));
-        }
+            if (!content instanceof ContentModel) {
+                reject(new Error("Content is not of type ContentMode"));
+            }
 
-        if (!utils.isUUID(content.id)) {
-            return callback(new Error("Incorrect id"));
-        }
+            if (!utils.isUUID(content.id)) {
+                reject(new Error("Incorrect id"));
+            }
 
-        let p2 = Promise.resolve();
+            let p2 = Promise.resolve();
 
-        let p1 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
+            let p1 = writeFile(utils.getMetaFilePath(content.id), JSON.stringify(content))
 
-        let data = content.getData();
+            let data = content.getData();
 
-        if (content.getData()) {
-            p2 = writeFile(utils.getDataFilePath(content.fileName), data)
-        }
+            if (content.getData()) {
+                p2 = writeFile(utils.getDataFilePath(content.fileName), data)
+            }
 
-        Promise.all([p1, p2])
-            .then(() => callback()) // Can't do then(callback) because Promise.all returns an array of resolved values, empty here
-            .catch(err => {
-                console.error("Error writing file: ", err);
-                callback(err);
-            });
+            Promise.all([p1, p2])
+                .then(() => resolve(content))
+                .catch(err => {
+                    console.error("Error writing file: ", err);
+                    reject(err);
+                });
+        });
     }
 
-    static delete(id, callback) {
+    static delete(id) {
+        return new Promise((resolve, reject) => {
 
-        if (!utils.isUUID(id)) {
-            return callback(new Error("Incorrect id"));
-        }
+            if (!utils.isUUID(id)) {
+                reject(new Error("Incorrect id"));
+            }
 
-        let p1 = readFile(utils.getMetaFilePath(id)).then(data => removeFile(utils.getDataFilePath(JSON.parse(data).fileName)));
-        let p2 = removeFile(utils.getMetaFilePath(id));
+            let p1 = readFile(utils.getMetaFilePath(id)).then(data => removeFile(utils.getDataFilePath(JSON.parse(data).fileName)));
+            let p2 = removeFile(utils.getMetaFilePath(id));
 
-        Promise.all([p1, p2])
-            .then(() => callback()) // Can't do then(callback) because Promise.all returns an array of resolved values, empty here
-            .catch(err => {
-                console.error("Error reading/writing file: ", err);
-                callback(err);
-            });
+            Promise.all([p1, p2])
+                .then(() => resolve(id))
+                .catch(err => {
+                    console.error("Error reading/writing file: ", err);
+                    reject(err);
+                });
+        });
     }
 }
