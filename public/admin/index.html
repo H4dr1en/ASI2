@@ -16,14 +16,17 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-        socket.on("connection", () => socket.emit("data_comm", {id:socket.id}));
+        socket.on("connection", () => socket.emit("data_comm", { "id": socket.id }));
         socket.on("currentSlidEvent", console.log);
 
-        socket.emit("slideEvent", {
-            "CMD": "START",
-            "PRES_ID": "efa0a79a-2f20-4e97-b0b7-71f824bfe349",
-            "SLID_ID": "c5c35356-1347-457d-af6b-e3d40862c1e0"
-        });
+        setTimeout(() => {
+            socket.emit("slideEvent", {
+                "CMD": "START",
+                "PRES_ID": "efa0a79a-2f20-4e97-b0b7-71f824bfe349",
+                "SLID_ID": "62cf58dd-ecb1-495a-899c-b7c633fa1df7"
+            })
+        }, 2000)
+
     </script>
 </body>
 
