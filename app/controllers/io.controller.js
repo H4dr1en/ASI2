@@ -33,6 +33,8 @@ this.listen = function (server) {
                         socket.emit("currentSlidEvent", { "slide": content })
                     });
                 }).catch(console.log)
+
+                // TODO : broadcast
             })
         });
 

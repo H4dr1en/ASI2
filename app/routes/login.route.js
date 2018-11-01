@@ -5,4 +5,4 @@ module.exports = router;
 var loginController = require('../controllers/content.controllers');
 
 router.route("/login")
-    .post(loginController.login)
+    .post(loginController.login)    // TODO Bodyparser

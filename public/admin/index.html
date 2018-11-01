@@ -16,7 +16,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-        socket.on("connection", () => socket.emit("data_comm", { "id": socket.id }));
+        socket.on("connection", () => socket.emit("data_comm", { "id": socket.id }));   // TODO callback
         socket.on("currentSlidEvent", console.log);
 
         setTimeout(() => {
