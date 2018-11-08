@@ -1,1 +1,33 @@
-<p>ADMIN PAGE</p>
+<!doctype html>
+<html lang="en">
+
+<head>
+
+</head>
+
+<body>
+    <h1>Hello World!</h1>
+    <div id="future"></div>
+    <form id="form" id="chat_form">
+        <input id="chat_input" type="text">
+        <input type="submit" value="Send">
+    </form>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        socket.on("connection", () => socket.emit("data_comm", { "id": socket.id }));   // TODO callback
+        socket.on("currentSlidEvent", console.log);
+
+        setTimeout(() => {
+            socket.emit("slideEvent", {
+                "CMD": "START",
+                "PRES_ID": "efa0a79a-2f20-4e97-b0b7-71f824bfe349",
+                "SLID_ID": "62cf58dd-ecb1-495a-899c-b7c633fa1df7"
+            })
+        }, 2000)
+
+    </script>
+</body>
+
+</html>

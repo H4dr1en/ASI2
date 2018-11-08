@@ -209,5 +209,6 @@ function logError(err) {
             console.log("========== FIN TESTS ==========");
         }, function (err) {
             console.log(err.message);
-        });
+        })        
+        .catch(console.error)
 })();

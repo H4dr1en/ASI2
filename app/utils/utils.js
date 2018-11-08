@@ -16,7 +16,7 @@ this.generateUUID = function () {
 	return uuid;
 };
 
-this.checkUUID = function(uuid) {
+this.isUUID = function(uuid) {
     let regex = RegExp("([0-9a-zA-Z]){8}-([0-9a-zA-Z]){4}-4([0-9a-zA-Z]){3}-([0-9a-zA-Z]){4}-([0-9a-zA-Z]){12}");
     return regex.test(uuid);
 }
