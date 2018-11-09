@@ -6,4 +6,6 @@ var utils = require("../utils/utils");
 module.exports = router;
 
 router.route("/uuid")
-    .get((req, res) => res.end(utils.generateUUID()));
+    .get((req, res) => {
+        res.type("json").json({uuid:utils.generateUUID()})
+    });
