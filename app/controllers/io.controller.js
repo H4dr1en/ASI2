@@ -15,25 +15,29 @@ this.listen = function (server) {
         socket.emit("connection", {});
         socket.on('data_comm', data => {
 
+            console.log("connection established")
+
             map.set(data.id, socket)
 
             socket.on('slideEvent', slid => {
 
+                console.log("recieved", slid)
+
+                if (!slid) {
+                    return socket.emit("slideEvent_back", { error: "No slid provided" });
+                }
+
                 if (!utils.isUUID(slid.id)) {
                     return socket.emit("slideEvent_back", { error: "Incorrect UUID" });
                 }
-
-                if (!slid.id) {
-                    return socket.emit("slideEvent_back", { error: "No slid provided" });
-                }
                 
-                ContentModel.read(slid.id).then(content => {
-                    map.forEach(socket => {
-                        console.log(`sending currentSlidEvent to ${socket.id}`)
-                        socket.emit("currentSlidEvent", { "slide": content })
-                        console.log("sending slide", content)
-                    });
-                }).catch(console.log)
+                map.forEach(socket => {
+                    console.log(`sending currentSlidEvent to ${socket.id}`)
+                    socket.emit("currentSlidEvent", { "slide": slid })
+                    console.log("sending slide", slid);
+                });
+                //ContentModel.read(slid.id).then(content => {                   
+                //}).catch(console.log)
 
                 // TODO : broadcast
             })
