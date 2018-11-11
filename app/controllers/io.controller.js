@@ -17,20 +17,21 @@ this.listen = function (server) {
 
             map.set(data.id, socket)
 
-            socket.on('slideEvent', data => {
+            socket.on('slideEvent', slid => {
 
-                if (!utils.isUUID(data.SLID_ID)) {
+                if (!utils.isUUID(slid.id)) {
                     return socket.emit("slideEvent_back", { error: "Incorrect UUID" });
                 }
 
-                if (['START', 'END', 'BEGIN', 'PREV', 'NEXT'].indexOf(data.CMD) == -1) {
-                    return socket.emit("slideEvent_back", { error: "Incorrect command" });
+                if (!slid.id) {
+                    return socket.emit("slideEvent_back", { error: "No slid provided" });
                 }
                 
-                ContentModel.read(data.SLID_ID).then(content => {
+                ContentModel.read(slid.id).then(content => {
                     map.forEach(socket => {
                         console.log(`sending currentSlidEvent to ${socket.id}`)
                         socket.emit("currentSlidEvent", { "slide": content })
+                        console.log("sending slide", content)
                     });
                 }).catch(console.log)
 
