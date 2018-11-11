@@ -84,10 +84,10 @@ this.create = function (req, res) {
         if(!req.body.src)
             return res.status(500).end(`No src provided for type: ${req.body.type}`)
         else
-            content.src = path.join("/content", req.body.src);
+            content.src = req.body.src;
     }
     
     p.then(() => ContentModel.create(content))
-        .then(() => res.end(content.id))
+        .then(() => res.type('json').json({'uuid':content.id}))
         .catch(e => res.status(500).end(e.message));
 }
