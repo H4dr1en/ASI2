@@ -6,18 +6,52 @@
 </head>
 
 <body>
-    <h1>Hello World!</h1>
-    <div id="future"></div>
-    <form id="form" id="chat_form">
-        <input id="chat_input" type="text">
-        <input type="submit" value="Send">
-    </form>
-    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <h1 id="slid-title"></h1>
+    <p id="slid-txt"></p>
+    <div id="slid-content"></div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-        socket.on("connection", () => socket.emit("data_comm", {id:socket.id}));
-        socket.on("currentSlidEvent", console.log);        
+        socket.on("connection", () => socket.emit("data_comm", { id: socket.id }));
+        socket.on("currentSlidEvent", (data) => updateContent(data));
+        function updateContent(data) {
+            document.getElementById("slid-title").innerHTML = data.title;
+            document.getElementById("slid-txt").innerHTML = data.txt;
+            loadContent(data.content, function (err, content) {
+                let slidContent = ""
+                if (err === null) {
+                    switch (content.type) {
+                        case "img":
+                        case "img_url": slidContent = `<img src=${content.src}></img>`; break
+                        case "video": slidContent = `<object data=${content.src}></object>`; break
+                        case "web": slidContent = `<iframe src=${content.src}></iframe>`; break
+                        default: slidContent = `<div><b>Unsupported content type</b></div>`; break
+                    }
+                }
+                document.getElementById("slid-content").innerHTML = slidContent;
+            });
+        }
+        function loadContent(id, cb) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:1337/contents/", true);
+            xhr.onreadystatechange = function () {
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    console.log("if")
+                    let contents = JSON.parse(this.response)
+                    for (let content in contents) {
+                        if (contents[content].id === id) {
+                            cb(null, contents[content]);
+                            return;
+                        }
+                    }
+                }
+                else if (this.readyState === XMLHttpRequest.DONE) {
+                    console.log("else")
+                    cb(this.response)
+                }
+            }
+            xhr.send();
+        }
     </script>
 </body>
 
