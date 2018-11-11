@@ -11,30 +11,22 @@ this.listen = function (server) {
     let map = new Map();
 
     io.on('connection', socket => {
-        console.log("user connected")
         socket.emit("connection", {});
         socket.on('data_comm', data => {
 
-            console.log("connection established")
-
             map.set(data.id, socket)
 
-            socket.on('slidEvent', (slid) => {
+            socket.on('slidEvent', (dataEvent) => {
 
-                console.log("recieved", slid)
-
-                if (!slid) {
+                if (!dataEvent.slid) {
                     return socket.emit("slideEvent_back", { error: "No slid provided" });
                 }
 
-                if (!utils.isUUID(slid.id)) {
+                if (!utils.isUUID(dataEvent.slid.id)) {
                     return socket.emit("slideEvent_back", { error: "Incorrect UUID" });
                 }
-                
                 map.forEach(socket => {
-                    console.log(`sending currentSlidEvent to ${socket.id}`)
-                    socket.emit("currentSlidEvent", { "slide": slid })
-                    console.log("sending slide", slid);
+                    socket.emit("currentSlidEvent", { "slid": dataEvent.slid })
                 });
             })
         });

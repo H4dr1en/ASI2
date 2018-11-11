@@ -13,7 +13,7 @@
     <script>
         var socket = io();
         socket.on("connection", () => socket.emit("data_comm", { id: socket.id }));
-        socket.on("currentSlidEvent", (data) => updateContent(data));
+        socket.on("currentSlidEvent", (data) => updateContent(data.slid));
         function updateContent(data) {
             document.getElementById("slid-title").innerHTML = data.title;
             document.getElementById("slid-txt").innerHTML = data.txt;
