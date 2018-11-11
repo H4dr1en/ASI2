@@ -17,7 +17,7 @@
         function updateContent(data) {
             document.getElementById("slid-title").innerHTML = data.title;
             document.getElementById("slid-txt").innerHTML = data.txt;
-            loadContent(data.content, function (err, content) {
+            loadContent(data.content_id, function (err, content) {
                 let slidContent = ""
                 if (err === null) {
                     switch (content.type) {

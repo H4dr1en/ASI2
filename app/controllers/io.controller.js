@@ -36,10 +36,6 @@ this.listen = function (server) {
                     socket.emit("currentSlidEvent", { "slide": slid })
                     console.log("sending slide", slid);
                 });
-                //ContentModel.read(slid.id).then(content => {                   
-                //}).catch(console.log)
-
-                // TODO : broadcast
             })
         });
 
