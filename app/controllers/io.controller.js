@@ -19,7 +19,7 @@ this.listen = function (server) {
 
             map.set(data.id, socket)
 
-            socket.on('slideEvent', slid => {
+            socket.on('slidEvent', (slid) => {
 
                 console.log("recieved", slid)
 
