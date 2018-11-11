@@ -2,11 +2,11 @@ var request = require('request');
 
 module.export = this;
 
-this.login = function (req, res) {
+this.login = function(req, res) {
 
     var data = "";
-    req.on('data', function(chunk){ data += chunk})
-    req.on('end', function(){
+    req.on('data', function(chunk) { data += chunk })
+    req.on('end', function() {
         req.rawBody = data;
         req.jsonBody = JSON.parse(data);
         var clientServerOptions = {
@@ -17,20 +17,18 @@ this.login = function (req, res) {
                 'Content-Type': 'application/json'
             }
         }
-        request(clientServerOptions, function (error, response) {
-            if(error){
-                res.status(500).json(error);
+        request(clientServerOptions, function(error, response, body) {
+            if (error || response.statusCode === 500) {
+                res.status(500).json(error || { error: "500 from auth" });
                 return;
             }
-            var body = "";
-            response.on('data', chunk => {
-                body += chunk.toString();
-            });
-    
-            response.on('end', () => {
-                let obj = JSON.parse(body);
-                res.type("json").json(obj)
-            });
+            let obj = JSON.parse(body);
+            if (obj.validAuth === true) {
+                res.status(200).json(obj)
+            }
+            else {
+                res.status(403).json(obj)
+            }
             return;
         });
     })
