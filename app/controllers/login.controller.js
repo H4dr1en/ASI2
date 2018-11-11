@@ -1,4 +1,4 @@
-var http = require('http');
+var request = require('request');
 
 module.export = this;
 
@@ -9,30 +9,29 @@ this.login = function (req, res) {
     req.on('end', function(){
         req.rawBody = data;
         req.jsonBody = JSON.parse(data);
-        res.type("json").json(req.jsonBody)
+        var clientServerOptions = {
+            uri: 'http://localhost:8080/FrontAuthWatcherWebService/rest/WatcherAuth',
+            body: data,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+        request(clientServerOptions, function (error, response) {
+            if(error){
+                res.status(500).json(error);
+                return;
+            }
+            var body = "";
+            response.on('data', chunk => {
+                body += chunk.toString();
+            });
+    
+            response.on('end', () => {
+                let obj = JSON.parse(body);
+                res.type("json").json(obj)
+            });
+            return;
+        });
     })
-
-    /* var options = {
-        host: 'localhost',
-        port: 80,
-        path: '/foo.html'
-    };
-
-    http.get(options, resp => {
-
-        var body = "";
-
-        resp.on('data', chunk => {
-            body += chunk.toString(); // convert Buffer to string
-        });
-
-        resp.on('end', () => {
-            let obj = JSON.parse(body);
-            console.log(obj);
-        });
-
-
-    }).on("error", function (e) {
-        console.log("Got error: " + e.message);
-    }); */
 }
