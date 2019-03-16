@@ -9,3 +9,5 @@ Clients can connect to /watch to see the presentation.
 Multiple content types are supported in the slides: Images (with possibility of upload), URLs, Youtube videos, text.
 
 DEMO: https://vimeo.com/324587828
+
+The Web application is available here > https://github.com/Furl0w/presentation-react
